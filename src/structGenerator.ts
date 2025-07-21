@@ -14,6 +14,15 @@ export interface StructureConfig {
     excludeNamePatterns?: string[];
 }
 
+// export function isStructureConfig(obj: any): obj is StructureConfig {
+//     return obj && (
+//         'excludeFolders' in obj ||
+//         'excludeExtensions' in obj ||
+//         'excludeFiles' in obj ||
+//         'excludeNamePatterns' in obj
+//     );
+// }
+
 /**
  * 
  * @param rootPath - 
@@ -23,7 +32,7 @@ async function loadConfig(rootPath: string): Promise<StructureConfig> {
     try {
         const data = await fs.promises.readFile(getConfigPath(), 'utf8'); //essaye de lire le fichier
         const parsed = JSON.parse(data); //transorme en un object
-        const parsedStruct = parsed.structGenerator; //transorme en un object
+        const parsedStruct = parsed.StructureConfig; //transorme en un object
 
         //verifie le type des entrees
         const config: StructureConfig = {

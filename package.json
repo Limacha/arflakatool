@@ -35,7 +35,8 @@
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src",
         "test": "vscode-test",
-        "publish": "npm run vscode:prepublish && vsce publish"
+        "publish": "npm run vscode:prepublish && vsce publish",
+        "patch": "npm run vscode:prepublish && vsce publish patch"
     },
     "devDependencies": {
         "@types/node": "^24.0.15",

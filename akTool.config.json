@@ -14,7 +14,7 @@
             "*fez**fe*z*"
         ]
     },
-    "copyonsaveandedit": [
+    "CopyRule": [
         {
             "source": "test/test.txt",
             "destination": "copies/test_copy.txt",

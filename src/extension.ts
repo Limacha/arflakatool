@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { generateStructure } from './structGenerator';
-import { createExampleFile } from './creatorExampleFile';
+import { exampleMap, createExampleFile } from './creatorExampleFile';
 import { outputChannel, logChannel, log } from './log';
 import { getRootPath, setRootPath } from './config';
 import { copySaveAndEdit } from './copySaveAndEdit';
@@ -32,6 +32,13 @@ export function activate(context: vscode.ExtensionContext) {
     const createJsonFile = vscode.commands.registerCommand('akTool.createExample', async () => {
         if (!verifWorkspace()) return;
 
+        const exampleTypes: string[] = Object.keys(exampleMap);
+
+        const options = await vscode.window.showQuickPick(exampleTypes, {
+            placeHolder: 'Choisissez les examples',
+            canPickMany: true
+        });
+        createExampleFile(options || []);
     });
     context.subscriptions.push(createJsonFile);
 

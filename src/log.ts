@@ -17,3 +17,15 @@ export function log(...messages: any[]) {
         console.log(prefix, msg);
     }
 }
+
+export function warn(...messages: any[]) {
+    for (const msg of messages) {
+        console.warn(prefix, msg);
+    }
+}
+
+export function error(...messages: any[]) {
+    for (const msg of messages) {
+        console.error(prefix, msg);
+    }
+}

@@ -3,23 +3,32 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { getRootPath, getConfigPath } from './config';
 
-interface CopyRule {
+export interface CopyRule {
     source: string; // nom du fichier à surveiller (ex: "script.js")
     destination: string; // chemin relatif de destination (ex: "copie/script_copy.js")
     injection: string; // texte à injecter
     position: 'start' | 'end'; // position de l'injection
 }
 
+// export function isCopyRule(obj: any): obj is CopyRule {
+//     return obj &&
+//         typeof obj.source === 'string' &&
+//         typeof obj.destination === 'string' &&
+//         typeof obj.injection === 'string' &&
+//         (obj.position === 'start' || obj.position === 'end');
+// }
+
 export function copySaveAndEdit(document: vscode.TextDocument) {
     if (!fs.existsSync(getConfigPath())) {
-        console.log('Fichier de config "copyonsaveandedit" non trouvé.');
+        console.log(`Fichier de config ${getConfigPath()} non trouvé.`);
         return;
     }
 
     let rules: CopyRule[];
     try {
         const configContent = fs.readFileSync(getConfigPath(), 'utf-8');
-        rules = JSON.parse(configContent);
+        const parsed = JSON.parse(configContent); //transorme en un object
+        rules = parsed.CopyRule; //transorme en un object
     } catch (err) {
         vscode.window.showErrorMessage('Erreur en lisant le fichier de config : ' + err);
         return;
