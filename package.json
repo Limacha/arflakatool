@@ -1,0 +1,51 @@
+{
+    "name": "arflakatool",
+    "displayName": "Arflaka Tool",
+    "description": "tool to help for coding",
+    "version": "0.0.1",
+    "publisher": "Arflaka-Limacha",
+    "license": "see license in LICENSE.txt",
+    "engines": {
+        "vscode": "^1.100.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "akTool.createstruct",
+                "title": "akTool.createstruct"
+            },
+            {
+                "command": "akTool.createExample",
+                "title": "akTool.createExample"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src",
+        "test": "vscode-test"
+    },
+    "devDependencies": {
+        "@types/node": "^24.0.15",
+        "@types/vscode": "^1.102.0",
+        "typescript": "^5.8.3"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Limacha/arflakatool.git"
+    },
+    "keywords": [],
+    "author": "",
+    "bugs": {
+        "url": "https://github.com/Limacha/arflakatool/issues"
+    },
+    "homepage": "https://github.com/Limacha/arflakatool#readme"
+}
