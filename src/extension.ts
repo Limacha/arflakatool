@@ -5,6 +5,7 @@ import { generateStructure } from './structGenerator';
 import { createExampleFile } from './creatorExampleFile';
 import { outputChannel, logChannel, log } from './log';
 import { getRootPath, setRootPath } from './config';
+import { copySaveAndEdit } from './copySaveAndEdit';
 
 export function activate(context: vscode.ExtensionContext) {
     logChannel("Extension akTool activée!");
@@ -25,6 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         generateStructure(getRootPath(), option);
     });
+    context.subscriptions.push(generateStruct);
 
     // Commande pour créer le fichier JSON exemple
     const createJsonFile = vscode.commands.registerCommand('akTool.createExample', async () => {
@@ -32,7 +34,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     });
     context.subscriptions.push(createJsonFile);
-    context.subscriptions.push(generateStruct);
+
+    vscode.workspace.onDidSaveTextDocument(document => {
+        if (!verifWorkspace()) return;
+        copySaveAndEdit(document);
+    });
 }
 
 export function deactivate() {
