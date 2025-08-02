@@ -1,13 +1,18 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getRootPath, getConfigPath } from './config';
+import { getRootPath, getConfigPath, getConfigContent } from './config';
+import { validate } from './validation';
+import { exampleMap } from './creatorExampleFile';
+import { log } from './log';
 
 export interface CopyRule {
     source: string; // nom du fichier à surveiller (ex: "script.js")
     destination: string; // chemin relatif de destination (ex: "copie/script_copy.js")
-    injection: string; // texte à injecter
-    position: 'start' | 'end'; // position de l'injection
+    injection: {
+        text: string; // texte à injecter
+        position: number; // position de l'injection
+    }[];
 }
 
 // export function isCopyRule(obj: any): obj is CopyRule {
@@ -18,38 +23,58 @@ export interface CopyRule {
 //         (obj.position === 'start' || obj.position === 'end');
 // }
 
-export function copySaveAndEdit(document: vscode.TextDocument) {
-    if (!fs.existsSync(getConfigPath())) {
-        console.log(`Fichier de config ${getConfigPath()} non trouvé.`);
-        return;
+/**
+ * 
+ * @returns le filtre sous format StructureConfig
+ */
+async function loadConfig(): Promise<CopyRule[]> {
+
+    //verifie le type des entrees
+    const config: CopyRule[] = validate(getConfigContent()?.CopyRule, exampleMap["CopyRule"]);
+    log(getConfigPath());
+    log(config);
+    return config;
+}
+
+export async function copySaveAndEdit(document: vscode.TextDocument) {
+
+    let rules: CopyRule[] = await loadConfig();
+
+    if (rules === null || rules?.length === 0) {
+        vscode.window.showWarningMessage(`Fichier de config '${getConfigPath()}' invalide.`);
     }
 
-    let rules: CopyRule[];
-    try {
-        const configContent = fs.readFileSync(getConfigPath(), 'utf-8');
-        const parsed = JSON.parse(configContent); //transorme en un object
-        rules = parsed.CopyRule; //transorme en un object
-    } catch (err) {
-        vscode.window.showErrorMessage('Erreur en lisant le fichier de config : ' + err);
-        return;
-    }
+    const filePath = path.relative(getRootPath(), document.uri.fsPath).replace(/\\/g, '/');
 
-    const fileName = path.relative(getRootPath(), document.uri.fsPath).replace(/\\/g, '/');
-
-    const matchingRules = rules.filter(rule => rule.source === fileName);
+    const matchingRules = rules.filter(rule => rule.source === filePath);
 
     if (matchingRules.length === 0) return;
 
-    const originalContent = document.getText();
+    const originalContent = document.getText().split('\n');
 
     matchingRules.forEach(rule => {
-        const newContent =
-            rule.position === 'start'
-                ? rule.injection + '\n' + originalContent
-                : originalContent + '\n' + rule.injection;
+        var newContent = originalContent.slice();
 
-        const destPath = path.join(getRootPath(), rule.destination);
-        const destDir = path.dirname(destPath);
+        //injecte tout les elements
+        rule.injection.forEach(injection => {
+            const position = Math.round(injection.position); //arondit pour pas avoir de float
+            //enfonction de si on part de la fin ou du debut
+            if (position < 0) {
+                //eviter d'ajouter en -5
+                if (newContent.length + 1 + position >= 0) {
+                    newContent.splice(newContent.length + 1 + position, 0, injection.text);
+                }
+                else {
+                    newContent.splice(0, 0, injection.text);
+                }
+            }
+            else if (position > 0) {
+                newContent.splice(position - 1, 0, injection.text);
+            }
+        });
+
+        const destPath = path.join(getRootPath(), rule.destination); //chemin du fichier
+        const destDir = path.dirname(destPath); //chemin du dossier
 
         // Crée le dossier s'il n'existe pas
         try {
@@ -59,7 +84,8 @@ export function copySaveAndEdit(document: vscode.TextDocument) {
             return;
         }
 
-        fs.writeFile(destPath, newContent, err => {
+        //ecrit dans le fichier
+        fs.writeFile(destPath, newContent.join("\n"), err => {
             if (err) {
                 vscode.window.showErrorMessage(`Erreur écriture ${rule.destination} : ${err.message}`);
             } else {

@@ -1,6 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
 import { generateStructure } from './structGenerator';
 import { exampleMap, createExampleFile } from './creatorExampleFile';
 import { outputChannel, logChannel, log } from './log';
@@ -8,6 +6,7 @@ import { getRootPath, setRootPath } from './config';
 import { copySaveAndEdit } from './copySaveAndEdit';
 
 export function activate(context: vscode.ExtensionContext) {
+    verifWorkspace();
     logChannel("Extension akTool activée!");
     log("Extension akTool activée!");
 

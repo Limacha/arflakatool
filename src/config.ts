@@ -1,4 +1,6 @@
 import path from 'path';
+import * as fs from 'fs';
+import { error } from './log';
 
 //#region root path
 let rootPath = "";
@@ -53,4 +55,17 @@ export function onConfigPathChange(callback: (newPath: string) => void) {
     onConfigPathChangeCallbacks.push(callback);
 }
 
+/**
+ * permet d'obtenir le contenu du fichier config
+ * @returns le contenu du fichier config
+ */
+export function getConfigContent(): any {
+    try {
+        const configContent = fs.readFileSync(getConfigPath(), 'utf-8');
+        return JSON.parse(configContent);
+    } catch {
+        error(`Fichier de config '${getConfigPath()}' introuvable.`);
+        return {}; //renvoie aucun filter
+    }
+}
 //#endregion

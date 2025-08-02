@@ -1,43 +1,48 @@
 {
-    "structGenerator": {
+    "StructureConfig": {
         "excludeFolders": [
-            "iesjfis"
+            "example"
         ],
         "excludeExtensions": [
             ".txt"
         ],
         "excludeFiles": [
-            "copyonsaveandedit.json"
+            "example.txt",
+            "akTool.config.json"
         ],
         "excludeNamePatterns": [
-            "*fu*",
-            "*fez**fe*z*"
+            "*amp*",
+            "exam*",
+            "*m**e*",
+            "example"
         ]
     },
     "CopyRule": [
         {
-            "source": "test/test.txt",
-            "destination": "copies/test_copy.txt",
-            "injection": "// Ajout exemple",
-            "position": "end"
-        },
-        {
-            "source": "test/test2.txt",
-            "destination": "copies/test2_copy.txt",
-            "injection": "// Ajout exemple",
-            "position": "start"
-        },
-        {
-            "source": "test42/yoyoyo.txt",
-            "destination": "jack/copyo.txt",
-            "injection": "// AJOUT AU DEBUT",
-            "position": "start"
-        },
-        {
             "source": "script.js",
-            "destination": "test/copie_script.js",
-            "injection": "// AJOUT À LA FIN",
-            "position": "end"
+            "destination": "copie/script_copy.js",
+            "injection": [
+                {
+                    "text": "//end",
+                    "position": -1
+                },
+                {
+                    "text": "//start",
+                    "position": 1
+                },
+                {
+                    "text": "//pas ajouter",
+                    "position": 0
+                },
+                {
+                    "text": "//ligne 15",
+                    "position": 15
+                },
+                {
+                    "text": "//ligne 5 depuis la fin",
+                    "position": -5
+                }
+            ]
         }
     ]
 }

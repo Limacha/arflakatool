@@ -10,7 +10,7 @@ import { CopyRule } from './copySaveAndEdit';
 const exampleStructureConfig: StructureConfig = {
     excludeFolders: ['example'],
     excludeExtensions: ['.txt'],
-    excludeFiles: ['example.txt'],
+    excludeFiles: ['example.txt', 'akTool.config.json'],
     excludeNamePatterns: ['*amp*', 'exam*', '*m**e*', 'example'],
 };
 
@@ -19,14 +19,7 @@ const exampleCopyRule: CopyRule[] =
         {
             source: 'script.js',
             destination: 'copie/script_copy.js',
-            injection: '// injected text',
-            position: 'start',
-        },
-        {
-            source: 'script.txt',
-            destination: 'copie/script_copy.js',
-            injection: '// injected text',
-            position: 'end',
+            injection: [{ text: "//end", position: -1 }, { text: "//start", position: 1 }, { text: "//pas ajouter", position: 0 }, { text: "//ligne 15", position: 15 }, { text: "//ligne 5 depuis la fin", position: -5 }]
         }
     ];
 

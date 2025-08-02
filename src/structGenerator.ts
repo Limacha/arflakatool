@@ -2,7 +2,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { logChannel, log } from './log';
-import { getConfigPath } from './config'
+import { getConfigContent, getConfigPath } from './config'
+import { validate } from './validation';
+import { exampleMap } from './creatorExampleFile';
 
 /**
  * type du fichier config
@@ -25,30 +27,24 @@ export interface StructureConfig {
 
 /**
  * 
- * @param rootPath - 
  * @returns le filtre sous format StructureConfig
  */
-async function loadConfig(rootPath: string): Promise<StructureConfig> {
-    try {
-        const data = await fs.promises.readFile(getConfigPath(), 'utf8'); //essaye de lire le fichier
-        const parsed = JSON.parse(data); //transorme en un object
-        const parsedStruct = parsed.StructureConfig; //transorme en un object
+async function loadConfig(): Promise<StructureConfig> {
 
-        //verifie le type des entrees
-        const config: StructureConfig = {
-            excludeFolders: Array.isArray(parsedStruct.excludeFolders) ? parsedStruct.excludeFolders : [],
-            excludeExtensions: Array.isArray(parsedStruct.excludeExtensions) ? parsedStruct.excludeExtensions : [],
-            excludeFiles: Array.isArray(parsedStruct.excludeFiles) ? parsedStruct.excludeFiles : [],
-            excludeNamePatterns: Array.isArray(parsedStruct.excludeNamePatterns) ? parsedStruct.excludeNamePatterns : [],
-        };
-        log(getConfigPath());
-        log(config);
+    //verifie le type des entrees
+    const config: StructureConfig = validate(getConfigContent()?.StructureConfig, exampleMap["StructureConfig"]);
+    log(getConfigPath());
+    log(config);
+    if (config &&
+        config.excludeFolders === null &&
+        config.excludeExtensions === null &&
+        config.excludeFiles === null &&
+        config.excludeNamePatterns === null
+    ) {
 
-        return config;
-    } catch {
         vscode.window.showWarningMessage(`Fichier de config '${getConfigPath()}' invalide.`);
-        return {}; //renvoie aucun filter
     }
+    return config;
 }
 
 /**
@@ -223,7 +219,7 @@ async function walk(dir: string, rootPath: string, config: StructureConfig, allF
 }
 
 export async function generateStructure(rootPath: string, mode: string) {
-    const config = await loadConfig(rootPath);
+    const config = await loadConfig();
     const files = await walk(rootPath, rootPath, config); //liste de tout les fichiers
     const outputLines: string[] = []; //contient le contenu du fichier final ligne par ligne
     const separateFiles: string[] = []; //contenu dans un fichier separer
