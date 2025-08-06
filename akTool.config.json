@@ -1,21 +1,18 @@
 {
     "StructureConfig": {
         "excludeFolders": [
-            "example"
+            ".git",
+            "node_modules",
+            "out"
         ],
-        "excludeExtensions": [
-            ".txt"
-        ],
+        "excludeExtensions": [],
         "excludeFiles": [
-            "example.txt",
-            "akTool.config.json"
+            "project_structure.txt",
+            "project_code.txt",
+            "akTool.config.json",
+            "package-lock.json"
         ],
-        "excludeNamePatterns": [
-            "*amp*",
-            "exam*",
-            "*m**e*",
-            "example"
-        ]
+        "excludeNamePatterns": []
     },
     "CopyRule": [
         {

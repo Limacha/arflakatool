@@ -2,9 +2,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { logChannel, log } from './log';
-import { getConfigContent, getConfigPath } from './config'
+import { getConfigContent, getConfigPath, getRootPath } from './config'
 import { validate } from './validation';
 import { exampleMap } from './creatorExampleFile';
+import { escapeSpecialChars, isDir, standarPath } from './function';
 
 /**
  * type du fichier config
@@ -13,7 +14,13 @@ export interface StructureConfig {
     excludeFolders?: string[];
     excludeExtensions?: string[];
     excludeFiles?: string[];
-    excludeNamePatterns?: string[];
+    excludeName?: string[];
+    excludeCode?: {
+        folders?: string[];
+        extensions?: string[];
+        files?: string[];
+        name?: string[];
+    };
 }
 
 // export function isStructureConfig(obj: any): obj is StructureConfig {
@@ -25,26 +32,54 @@ export interface StructureConfig {
 //     );
 // }
 
+
+
 /**
- * 
+ * charge la config de la structure
  * @returns le filtre sous format StructureConfig
  */
 async function loadConfig(): Promise<StructureConfig> {
 
     //verifie le type des entrees
     const config: StructureConfig = validate(getConfigContent()?.StructureConfig, exampleMap["StructureConfig"]);
-    log(getConfigPath());
-    log(config);
+    normalizeConfigPaths(config);
     if (config &&
         config.excludeFolders === null &&
         config.excludeExtensions === null &&
         config.excludeFiles === null &&
-        config.excludeNamePatterns === null
+        config.excludeName === null && (
+            (
+                config.excludeCode != null &&
+                config.excludeCode.folders === null &&
+                config.excludeCode.extensions === null &&
+                config.excludeCode.files === null &&
+                config.excludeCode.name === null
+            ) ||
+            config.excludeCode === null
+        )
     ) {
 
         vscode.window.showWarningMessage(`Fichier de config '${getConfigPath()}' invalide.`);
     }
     return config;
+}
+
+function normalizeConfigPaths(config: StructureConfig): void {
+    const normalizeArray = (arr?: string[] | null): string[] =>
+        Array.isArray(arr) ? arr.map(s => standarPath(s)) : arr ?? [];
+
+    config.excludeFolders = normalizeArray(config.excludeFolders);
+    config.excludeExtensions = normalizeArray(config.excludeExtensions);
+    config.excludeFiles = normalizeArray(config.excludeFiles);
+    config.excludeName = normalizeArray(config.excludeName);
+
+    if (config.excludeCode) {
+        config.excludeCode.folders = normalizeArray(config.excludeCode.folders);
+        config.excludeCode.extensions = normalizeArray(config.excludeCode.extensions);
+        config.excludeCode.files = normalizeArray(config.excludeCode.files);
+        config.excludeCode.name = normalizeArray(config.excludeCode.name);
+    }
+    //log(config);
 }
 
 /**
@@ -116,18 +151,20 @@ function matchesPattern(filename: string, pattern: string): boolean {
  * @param config - la config de se qu'il faut exclure
  * @returns si exclu ou pas
  */
-function isExcluded(fullPath: string, rootPath: string, config: StructureConfig): boolean {
-    const relativePath = path.relative(rootPath, fullPath); //chemin relatif du fichier
+function isExcludFromStruct(fullPath: string, rootPath: string, config: StructureConfig): boolean {
+    const relativePath = path.relative(rootPath, fullPath); //chemin relatif
     const ext = path.extname(fullPath); //extantion du fichier
-    const dirParts = relativePath.split(path.sep); //chaque directory
     const baseName = path.basename(fullPath); //le nom du fichier
+    //log("-----", relativePath, ext, baseName, "-----");
 
-    //si des dossier son exclu
-    if (config.excludeFolders) {
-        //! car sur pas null
-        if (dirParts.some(folder => config.excludeFolders!.includes(folder))) {
-            return true;
+    if (isDir(fullPath)) {
+        //si des dossier son exclu
+        if (config.excludeFolders) {
+            if (config.excludeFolders.includes(relativePath)) {
+                return true;
+            }
         }
+        return false;
     }
 
     if (!baseName.includes(".")) {
@@ -149,9 +186,65 @@ function isExcluded(fullPath: string, rootPath: string, config: StructureConfig)
     }
 
     //si le patern est dedans
-    if (config.excludeNamePatterns) {
+    if (config.excludeName) {
         //pour tout les paterns
-        for (const pattern of config.excludeNamePatterns) {
+        for (const pattern of config.excludeName) {
+            //verifie si dedans
+            if (matchesPattern(baseName, pattern)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * verifie si l'element est a exclure
+ * @param relativePath - chemin relatif a la racine
+ * @param config - la config de se qu'il faut exclure
+ * @returns si exclu ou pas
+ */
+function isExcludFromCode(fullPath: string, rootPath: string, config: StructureConfig): boolean {
+    const relativePath = path.relative(rootPath, fullPath);
+    const ext = path.extname(fullPath); //extantion du fichier
+    const dirParts = relativePath.split(path.sep); //chaque directory
+    const baseName = path.basename(fullPath); //le nom du fichier
+
+    if (isDir(fullPath)) {
+        return true;
+    }
+
+    //si des dossier son exclu
+    if (config.excludeCode?.folders) {
+        //! car sur pas null
+        if (dirParts.some(folder => config.excludeFolders!.includes(folder))) {
+            return true;
+        }
+    }
+
+    if (!baseName.includes(".")) {
+        return false;
+    }
+
+    //si l'extention est exlu
+    if (config.excludeCode?.extensions) {
+        if (config.excludeCode.extensions.includes(ext)) {
+            return true;
+        }
+    }
+
+    //si le fichier est exclu
+    if (config.excludeCode?.files) {
+        if (config.excludeCode.files.includes(relativePath)) {
+            return true;
+        }
+    }
+
+    //si le patern est dedans
+    if (config.excludeCode?.name) {
+        //pour tout les paterns
+        for (const pattern of config.excludeCode.name) {
             //verifie si dedans
             if (matchesPattern(baseName, pattern)) {
                 return true;
@@ -188,7 +281,7 @@ function formatTreeLine(filePath: string, root: string): string {
     const indent = '│   '.repeat(parts.length - 1); //indentation
     const fileName = parts[parts.length - 1]; //nom du fichier
 
-    return `${indent}├── ${fileName}`;
+    return `${indent}├${(isDir(filePath)) ? "D" : "F"}─ ${fileName}`;
 }
 
 /**
@@ -201,8 +294,9 @@ async function walk(dir: string, rootPath: string, config: StructureConfig, allF
     const entries = await fs.promises.readdir(dir, { withFileTypes: true }); //retourne tout les elemants dans le dossier
     var dirs: string[] = [];
     for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name); //fait le chemin complet de l'element
-        if (!isExcluded(fullPath, rootPath, config)) {
+        const fullPath = path.join(entry.parentPath, entry.name); //fait le chemin complet de l'element
+        //verifie si il est exclu ou pas
+        if (!isExcludFromStruct(fullPath, rootPath, config)) {
             if (entry.isDirectory()) {
                 dirs.push(fullPath)
             } else {
@@ -210,7 +304,9 @@ async function walk(dir: string, rootPath: string, config: StructureConfig, allF
             }
         }
     }
+    //refait pour les sous dossier
     while (dirs.length != 0) {
+        //log("dirs", dirs);
         allFiles.push(dirs[0])
         await walk(dirs[0], rootPath, config, allFiles); //refait un parcour
         dirs.shift(); //retire le dossier de la liste
@@ -218,9 +314,9 @@ async function walk(dir: string, rootPath: string, config: StructureConfig, allF
     return allFiles;
 }
 
-export async function generateStructure(rootPath: string, mode: string) {
+export async function generateStructure(mode: string) {
     const config = await loadConfig();
-    const files = await walk(rootPath, rootPath, config); //liste de tout les fichiers
+    const files = await walk(getRootPath(), getRootPath(), config); //liste de tout les fichiers valides
     const outputLines: string[] = []; //contient le contenu du fichier final ligne par ligne
     const separateFiles: string[] = []; //contenu dans un fichier separer
     /*for (const file of files) {
@@ -229,35 +325,40 @@ export async function generateStructure(rootPath: string, mode: string) {
     outputLines.push('=== Structure du projet ===\n');
 
     for (const file of files) {
-        const line = formatTreeLine(file, rootPath); //cree un ligne formater
+        const line = formatTreeLine(file, getRootPath()); //cree un ligne formater
         outputLines.push(line); //ajoute la ligne
     }
 
     outputLines.push('\n');
 
-    for (const file of files) {
-        if (mode.includes('code') || mode.includes('Code')) {
-            const content = await readFileContent(file); //le contenu du fichier
-            const title =
-                "///////////////////////////\n" +
-                `// ${path.relative(rootPath, file)}\n` +
-                "///////////////////////////\n"; //le titre du fichier
+    //log(files);
 
-            const block = `${title}\n${content}\n`; //un block avec le titre et le contenu
+    if (mode.includes('code') || mode.includes('Code')) {
+        for (const file of files) {
+            const relativePath = path.relative(getRootPath(), file);
+            if (!isExcludFromCode(file, getRootPath(), config)) {
+                const content = await readFileContent(file); //le contenu du fichier
+                const title =
+                    "///////////////////////////\n" +
+                    `// ${relativePath}\n` +
+                    "///////////////////////////"; //le titre du fichier
 
-            if (mode.includes('meme fichier') || mode.includes('un fichier')) {
-                outputLines.push(block); //ajoute le block au fichier
-            } else {
-                separateFiles.push(block); //ajoute le block dans un fichier separer
+                const block = `${title}\n${content}\n`; //un block avec le titre et le contenu
+
+                if (mode.includes('meme fichier') || mode.includes('un fichier')) {
+                    outputLines.push(block); //ajoute le block au fichier
+                } else {
+                    separateFiles.push(block); //ajoute le block dans un fichier separer
+                }
             }
         }
     }
 
-    const uri = vscode.Uri.file(path.join(rootPath, 'project_structure.txt'));
+    const uri = vscode.Uri.file(path.join(getRootPath(), 'project_structure.txt'));
     await fs.promises.writeFile(uri.fsPath, outputLines.join('\n'), 'utf8');
 
     if (separateFiles.length != 0) {
-        const filepath = vscode.Uri.file(path.join(rootPath, 'project_code.txt'));
+        const filepath = vscode.Uri.file(path.join(getRootPath(), 'project_code.txt'));
         await fs.promises.writeFile(filepath.fsPath, separateFiles.join('\n'), 'utf8');
     }
 

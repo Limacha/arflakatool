@@ -8,10 +8,43 @@ import { CopyRule } from './copySaveAndEdit';
 
 /* #region example */
 const exampleStructureConfig: StructureConfig = {
-    excludeFolders: ['example'],
-    excludeExtensions: ['.txt'],
-    excludeFiles: ['example.txt', 'akTool.config.json'],
-    excludeNamePatterns: ['*amp*', 'exam*', '*m**e*', 'example'],
+    "excludeFolders": [
+        "test42\test",
+        "test42\\test",
+        "test42/test"
+    ],
+    "excludeExtensions": [
+        ".txt"
+    ],
+    "excludeFiles": [
+        "project_structure.txt",
+        "akTool.config.json",
+        "origin/script.js"
+    ],
+    "excludeName": [
+        "*amp*",
+        "exam*",
+        "*m**e*",
+        "example"
+    ],
+    "excludeCode": {
+        "folders": [
+            "example"
+        ],
+        "extensions": [
+            ".js"
+        ],
+        "files": [
+            "example.txt",
+            "package-lock.json"
+        ],
+        "name": [
+            "*amp*",
+            "exam*",
+            "*m**e*",
+            "example"
+        ]
+    }
 };
 
 const exampleCopyRule: CopyRule[] =
@@ -31,7 +64,7 @@ export const exampleMap: Record<string, any> = {
 /* #endregion */
 
 export async function createExampleFile(types: string[]) {
-
+    log(types);
     // Objet final, une seule entrée par type (nom de type => objet)
     const example: Record<string, any> = {};
 
@@ -48,6 +81,7 @@ export async function createExampleFile(types: string[]) {
 
     try {
         const path = getConfigPath();
+        log(example);
         fs.writeFileSync(path, JSON.stringify(example, null, 2), 'utf-8');
         vscode.window.showInformationMessage(`Fichier ${path} créé.`);
 

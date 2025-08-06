@@ -2,7 +2,7 @@
     "name": "arflakatool",
     "displayName": "Arflaka Tool",
     "description": "tool to help for coding",
-    "version": "0.0.2",
+    "version": "0.1.0",
     "publisher": "Arflaka-Limacha",
     "license": "see license in LICENSE.txt",
     "engines": {
@@ -25,6 +25,10 @@
             {
                 "command": "akTool.createExample",
                 "title": "akTool.createExample"
+            },
+            {
+                "command": "akTool.generateWrokspace",
+                "title": "akTool.generateWrokspace"
             }
         ]
     },
