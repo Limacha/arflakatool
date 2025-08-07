@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { log, warn, error } from './log';
-import { getConfigPath } from './config';
+import { getConfigContent, getConfigPath } from './config';
 import { StructureConfig } from './structGenerator';
 import { CopyRule } from './copySaveAndEdit';
 
@@ -67,12 +67,14 @@ export async function createExampleFile(types: string[]) {
     log(types);
     // Objet final, une seule entrée par type (nom de type => objet)
     const example: Record<string, any> = {};
+    let config = getConfigContent();
+    log(config);
 
     types.forEach((typeName) => {
         //si le type a un example
         if (exampleMap[typeName]) {
             //ajoute l'example
-            example[typeName] = exampleMap[typeName];
+            config[typeName] = exampleMap[typeName];
         } else {
             warn(`Aucun exemple trouvé pour le type "${typeName}"`);
         }
@@ -81,8 +83,8 @@ export async function createExampleFile(types: string[]) {
 
     try {
         const path = getConfigPath();
-        log(example);
-        fs.writeFileSync(path, JSON.stringify(example, null, 2), 'utf-8');
+        log(config);
+        fs.writeFileSync(path, JSON.stringify(config, null, 2), 'utf-8');
         vscode.window.showInformationMessage(`Fichier ${path} créé.`);
 
         //ouvre le document
