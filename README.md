@@ -4,7 +4,7 @@ fait pour avoir plein de fonctionaliter en plus
 A simple tool that show the size of the current text file in the statusbar.
 The status will update when the file is saved or change.
 
-- # Configurations
+## Configurations
 
 - Save Will change immediately
 
