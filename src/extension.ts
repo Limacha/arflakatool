@@ -1,16 +1,21 @@
 import * as vscode from 'vscode';
-import { generateStructure } from './structGenerator';
-import { exampleMap, createExampleFile } from './creatorExampleFile';
+import { generateStructure } from './tools/structGenerator';
+import { exampleMap, createExampleFile } from './tools/creatorExampleFile';
 import { outputChannel, logChannel, log } from './log';
 import { getRootPath, setRootPath } from './config';
-import { copySaveAndEdit } from './copySaveAndEdit';
-import { generateWorkspaceFromStructure } from './generateWorkspace';
+import { copySaveAndEdit } from './tools/copySaveAndEdit';
+import { generateWorkspaceFromStructure } from './tools/generateWorkspace';
 import { pathExists } from './function';
+import { fileSizeStatusBar, updateFileSize, updateFileSizeStatutBar } from './tools/fileSize';
 
 export function activate(context: vscode.ExtensionContext) {
     verifWorkspace();
     logChannel("Extension akTool activée!");
     log("Extension akTool activée!");
+    if (vscode.window.activeTextEditor?.document) {
+        updateFileSize(vscode.window.activeTextEditor.document);
+    }
+    context.subscriptions.push(fileSizeStatusBar);
 
     const generateStruct = vscode.commands.registerCommand('akTool.createstruct', async () => {
         log('akTool.createstruct');
@@ -110,6 +115,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.workspace.onDidSaveTextDocument(document => {
         log('onDidSaveTextDocument', document);
+
+        updateFileSize(document);
+
         if (!verifWorkspace()) {
             vscode.window.showErrorMessage("Aucun dossier ouvert.");
             return;
@@ -129,6 +137,23 @@ export function activate(context: vscode.ExtensionContext) {
 
         verifWorkspace();
     });
+
+    vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (editor) {
+            updateFileSize(editor.document);
+        }
+    }, null, context.subscriptions);
+
+    vscode.workspace.onDidChangeConfiguration(event => {
+        log('onDidChangeConfiguration', event);
+        if (event.affectsConfiguration('fileSizeStatusBar.alignment') || event.affectsConfiguration('fileSizeStatusBar.priority')) {
+            fileSizeStatusBar.dispose();
+            updateFileSizeStatutBar();
+            if (vscode.window.activeTextEditor?.document) {
+                updateFileSize(vscode.window.activeTextEditor.document);
+            }
+        }
+    }, null, context.subscriptions);
 }
 
 export function deactivate() {

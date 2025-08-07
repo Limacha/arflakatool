@@ -114,6 +114,11 @@ export async function createFile(filePath: string, content: string = ''): Promis
     await fsPromise.writeFile(resolvedPath, content, { encoding: 'utf-8' });
 }
 
+/**
+ * vide compltement un dossier
+ * @param dirPath le chemin vers le dossier a vider
+ * @returns la promesse de le vider
+ */
 export async function clearDirectory(dirPath: string): Promise<void> {
     try {
         const resolvedPath = path.resolve(dirPath);
@@ -144,8 +149,25 @@ export async function clearDirectory(dirPath: string): Promise<void> {
     }
 }
 
-
+/**
+ * cree un chemin complet a partir du workspace[0] ou c:\\
+ * @param filePath le chemin relatif
+ * @returns le chemin complet
+ */
 export function createFullPath(filePath: string) {
     if (!path.isAbsolute(filePath)) filePath = (getRootPath() != "") ? path.join(getRootPath(), filePath) : "c:\\" + filePath;
     return filePath;
 }
+
+/**
+ * formate le nombre de byte pour avoir la valeur en B/KB/MB
+ * @param bytes le nombre de byte
+ * @returns le nombre de bytes formater (B/KB/MB)
+ */
+export function formatBytes(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    const kb = bytes / 1024;
+    if (kb < 1024) return `${kb.toFixed(1)} KB`;
+    const mb = kb / 1024;
+    return `${mb.toFixed(2)} MB`;
+};

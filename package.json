@@ -13,7 +13,10 @@
     ],
     "activationEvents": [
         "onStartupFinished",
-        "onDidSaveTextDocument"
+        "onDidSaveTextDocument",
+        "onDidChangeWorkspaceFolders",
+        "onDidChangeActiveTextEditor",
+        "onDidChangeConfiguration"
     ],
     "main": "./out/extension.js",
     "contributes": {
@@ -30,7 +33,26 @@
                 "command": "akTool.generateWrokspace",
                 "title": "akTool.generateWrokspace"
             }
-        ]
+        ],
+        "configuration": {
+            "title": "akToo: File Size Status Bar",
+            "properties": {
+                "fileSizeStatusBar.alignment": {
+                    "type": "string",
+                    "enum": [
+                        "left",
+                        "right"
+                    ],
+                    "default": "right",
+                    "description": "Position de l'affichage dans la barre de statut (left ou right)"
+                },
+                "fileSizeStatusBar.priority": {
+                    "type": "number",
+                    "default": 100,
+                    "description": "prioriter du statut bar plus elever = plus au extreme"
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

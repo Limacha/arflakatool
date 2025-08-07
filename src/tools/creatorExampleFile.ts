@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { log, warn, error } from './log';
-import { getConfigContent, getConfigPath } from './config';
+import { log, warn, error } from '../log';
+import { getConfigContent, getConfigPath } from '../config';
 import { StructureConfig } from './structGenerator';
 import { CopyRule } from './copySaveAndEdit';
 

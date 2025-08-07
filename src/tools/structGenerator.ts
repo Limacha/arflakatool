@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { logChannel, log } from './log';
-import { getConfigContent, getConfigPath, getRootPath } from './config'
-import { validate } from './validation';
+import { logChannel, log } from '../log';
+import { getConfigContent, getConfigPath, getRootPath } from '../config'
+import { validate } from '../validation';
 import { exampleMap } from './creatorExampleFile';
-import { escapeSpecialChars, isDir, standarPath } from './function';
+import { escapeSpecialChars, isDir, standarPath } from '../function';
 
 /**
  * type du fichier config

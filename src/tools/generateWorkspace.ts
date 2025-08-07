@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import { relative } from 'path';
 import * as vscode from 'vscode';
-import { logChannel, log, warn, error } from './log';
-import { getRootPath } from './config';
-import { clearDirectory, createDir, createFile, escapeSpecialChars, pathExists, readFileContent, standarPath, createFullPath } from './function';
+import { logChannel, log, warn, error } from '../log';
+import { getRootPath } from '../config';
+import { clearDirectory, createDir, createFile, escapeSpecialChars, pathExists, readFileContent, standarPath, createFullPath } from '../function';
 
 export async function generateWorkspaceFromStructure(from: string, to: string, structure: boolean, code: boolean, fromCode: string = "") {
     let struct: string[] = [];

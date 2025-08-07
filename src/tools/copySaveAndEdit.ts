@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getRootPath, getConfigPath, getConfigContent } from './config';
-import { validate } from './validation';
+import { getRootPath, getConfigPath, getConfigContent } from '../config';
+import { validate } from '../validation';
+import { log } from '../log';
 import { exampleMap } from './creatorExampleFile';
-import { log } from './log';
 
 export interface CopyRule {
     source: string; // nom du fichier à surveiller (ex: "script.js")
