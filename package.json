@@ -22,6 +22,10 @@
     "contributes": {
         "commands": [
             {
+                "command": "akTool.report",
+                "title": "akTool.report (inactif)"
+            },
+            {
                 "command": "akTool.createstruct",
                 "title": "akTool.createstruct"
             },

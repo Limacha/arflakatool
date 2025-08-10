@@ -2,11 +2,12 @@ import * as vscode from 'vscode';
 import { generateStructure } from './tools/structGenerator';
 import { exampleMap, createExampleFile } from './tools/creatorExampleFile';
 import { outputChannel, logChannel, log } from './log';
-import { getRootPath, setRootPath } from './config';
+import { getConfigContent, getConfigPath, getRootPath, setRootPath } from './config';
 import { copySaveAndEdit } from './tools/copySaveAndEdit';
 import { generateWorkspaceFromStructure } from './tools/generateWorkspace';
 import { pathExists } from './function';
 import { fileSizeStatusBar, updateFileSize, updateFileSizeStatutBar } from './tools/fileSize';
+import { report } from './report';
 
 export function activate(context: vscode.ExtensionContext) {
     verifWorkspace();
@@ -33,7 +34,6 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
         if (!option) return;
-
         generateStructure(option);
     });
     context.subscriptions.push(generateStruct);
@@ -113,6 +113,20 @@ export function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(createJsonFile);
 
+    // permet au utilisateur de report
+    const reportCommand = vscode.commands.registerCommand('akTool.report', async () => {
+        log('akTool.report');
+
+        const level = await vscode.window.showQuickPick(["suggestion", "bug critique", "bug", "faille de securiter", "questions"], {
+            placeHolder: 'Quel est le probleme'
+        });
+
+        const title = await vscode.window.showInputBox({ placeHolder: "le titre du mail" });
+
+        report();
+    });
+    context.subscriptions.push(reportCommand);
+
     vscode.workspace.onDidSaveTextDocument(document => {
         log('onDidSaveTextDocument', document);
 
@@ -122,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage("Aucun dossier ouvert.");
             return;
         }
-        copySaveAndEdit(document);
+        if (getConfigContent()?.CopyRule) copySaveAndEdit(document);
     });
 
     vscode.workspace.onDidChangeWorkspaceFolders(event => {
