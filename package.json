@@ -2,7 +2,7 @@
     "name": "arflakatool",
     "displayName": "Arflaka Tool",
     "description": "tool to help for coding",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "publisher": "Arflaka-Limacha",
     "license": "see license in LICENSE.txt",
     "engines": {
