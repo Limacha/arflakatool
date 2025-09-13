@@ -2,7 +2,7 @@
     "name": "arflakatool",
     "displayName": "Arflaka Tool",
     "description": "tool to help for coding",
-    "version": "0.1.6",
+    "version": "0.1.5",
     "publisher": "Arflaka-Limacha",
     "license": "see license in LICENSE.txt",
     "engines": {
@@ -81,7 +81,8 @@
         "lint": "eslint src",
         "test": "vscode-test",
         "publish": "npm run vscode:prepublish && vsce publish",
-        "patch": "npm run vscode:prepublish && vsce publish patch"
+        "patch": "npm run vscode:prepublish && vsce publish patch",
+        "token": "vsce login Arflaka-Limacha"
     },
     "devDependencies": {
         "@types/node": "^24.0.15",
