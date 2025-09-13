@@ -36,6 +36,21 @@
             {
                 "command": "akTool.generateWrokspace",
                 "title": "akTool.generateWrokspace"
+            },
+            {
+                "command": "akTool.HexEditor.open",
+                "title": "akTool.HexEditor.open"
+            }
+        ],
+        "customEditors": [
+            {
+                "viewType": "akHexEditor.editor",
+                "displayName": "arflaka Hex Editor",
+                "selector": [
+                    {
+                        "filenamePattern": "*.akhe"
+                    }
+                ]
             }
         ],
         "configuration": {

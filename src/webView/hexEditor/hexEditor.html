@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editeur Binaire/Hex/ASCII</title>
+    <link rel="stylesheet" href="${styleUri}">
+</head>
+
+<body>
+    <h1>Editeur Binaire / Hex / ASCII</h1>
+    <div class="controls">
+        <label><input type="checkbox" id="toggleBinary" checked> Binaire</label>
+        <label><input type="checkbox" id="toggleHex" checked> Hex</label>
+        <label><input type="checkbox" id="toggleAscii" checked> ASCII</label>
+    </div>
+    <div class="container">
+        <div class="column" id="binaryColumn">
+            <h2>Binaire</h2>
+            <textarea id="binary"></textarea>
+        </div>
+        <div class="column" id="hexColumn">
+            <h2>Hex</h2>
+            <textarea id="hex">${hex}</textarea>
+        </div>
+        <div class="column" id="asciiColumn">
+            <h2>ASCII</h2>
+            <textarea id="ascii"></textarea>
+        </div>
+    </div>
+    <script src="${scriptUri}"></script>
+</body>
+
+</html>

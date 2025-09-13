@@ -8,6 +8,8 @@ import { generateWorkspaceFromStructure } from './tools/generateWorkspace';
 import { pathExists } from './function';
 import { fileSizeStatusBar, updateFileSize, updateFileSizeStatutBar } from './tools/fileSize';
 import { report } from './report';
+import { openBitHexEditor } from './tools/hexEditor';
+import { HexEditorProvider } from "./provider/hexEditorProvider";
 
 export function activate(context: vscode.ExtensionContext) {
     verifWorkspace();
@@ -17,6 +19,32 @@ export function activate(context: vscode.ExtensionContext) {
         updateFileSize(vscode.window.activeTextEditor.document);
     }
     context.subscriptions.push(fileSizeStatusBar);
+
+
+    context.subscriptions.push(
+        vscode.window.registerCustomEditorProvider(
+            'akHexEditor.editor',
+            new HexEditorProvider(context),
+            { webviewOptions: { retainContextWhenHidden: true } }
+        )
+    );
+
+    const hexEditor = vscode.commands.registerCommand('akTool.HexEditor.open', async () => {
+        // Demander à l'utilisateur de choisir un fichier DANS le workspace
+        const uris = await vscode.window.showOpenDialog({
+            canSelectMany: false,
+            openLabel: 'Ouvrir avec Hex Editor',
+            defaultUri: vscode.workspace.workspaceFolders?.[0].uri, // part du dossier racine
+        });
+
+        if (!uris || uris.length === 0) return;
+
+        // Utiliser le custom editor provider enregistré
+        await vscode.commands.executeCommand('vscode.openWith', uris[0], 'akHexEditor.editor');
+    });
+
+
+    context.subscriptions.push(hexEditor);
 
     const generateStruct = vscode.commands.registerCommand('akTool.createstruct', async () => {
         log('akTool.createstruct');
