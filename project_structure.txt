@@ -1,24 +1,22 @@
 === Structure du projet ===
 
-├── .gitignore
-├── launchvs.bat
-├── LICENSE.txt
-├── package.json
-├── README.md
-├── tsconfig.json
-├── .vscode
-│   ├── extensions.json
-│   ├── launch.json
-│   ├── settings.json
-│   ├── tasks.json
-├── src
-│   ├── config.ts
-│   ├── copySaveAndEdit.ts
-│   ├── creatorExampleFile.ts
-│   ├── extension.ts
-│   ├── function.ts
-│   ├── generateWorkspace.ts
-│   ├── log.ts
-│   ├── structGenerator.ts
-│   ├── validation.ts
+├F─ .gitignore
+├F─ launchvs.bat
+├F─ LICENSE.txt
+├F─ package.json
+├F─ README.md
+├F─ tsconfig.json
+├D─ src
+│   ├F─ config.ts
+│   ├F─ extension.ts
+│   ├F─ function.ts
+│   ├F─ log.ts
+│   ├F─ report.ts
+│   ├F─ validation.ts
+│   ├D─ tools
+│   │   ├F─ copySaveAndEdit.ts
+│   │   ├F─ creatorExampleFile.ts
+│   │   ├F─ fileSize.ts
+│   │   ├F─ generateWorkspace.ts
+│   │   ├F─ structGenerator.ts
 

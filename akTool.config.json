@@ -1,6 +1,7 @@
 {
     "StructureConfig": {
         "excludeFolders": [
+            ".vscode",
             ".git",
             "node_modules",
             "out"
@@ -12,7 +13,19 @@
             "akTool.config.json",
             "package-lock.json"
         ],
-        "excludeNamePatterns": []
+        "excludeNamePatterns": [],
+        "excludeCode": {
+            "folders": [],
+            "extensions": [],
+            "files": [
+                ".gitignore",
+                "launchvs.bat",
+                "tsconfig.json",
+                "LICENSE.txt",
+                "README.md"
+            ],
+            "name": []
+        }
     },
     "CopyRule": [
         {

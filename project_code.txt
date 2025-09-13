@@ -1,55 +1,11 @@
 ///////////////////////////
-// .gitignore
-///////////////////////////
-
-out
-dist
-node_modules
-.vscode-test/
-*.vsix
-
-///////////////////////////
-// launchvs.bat
-///////////////////////////
-
-code .
-
-///////////////////////////
-// LICENSE.txt
-///////////////////////////
-
-MIT License
-
-Copyright (c) 2025 Limacha
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-///////////////////////////
 // package.json
 ///////////////////////////
-
 {
     "name": "arflakatool",
     "displayName": "Arflaka Tool",
     "description": "tool to help for coding",
-    "version": "0.1.0",
+    "version": "0.1.4",
     "publisher": "Arflaka-Limacha",
     "license": "see license in LICENSE.txt",
     "engines": {
@@ -60,11 +16,18 @@ SOFTWARE.
     ],
     "activationEvents": [
         "onStartupFinished",
-        "onDidSaveTextDocument"
+        "onDidSaveTextDocument",
+        "onDidChangeWorkspaceFolders",
+        "onDidChangeActiveTextEditor",
+        "onDidChangeConfiguration"
     ],
     "main": "./out/extension.js",
     "contributes": {
         "commands": [
+            {
+                "command": "akTool.report",
+                "title": "akTool.report (inactif)"
+            },
             {
                 "command": "akTool.createstruct",
                 "title": "akTool.createstruct"
@@ -77,7 +40,26 @@ SOFTWARE.
                 "command": "akTool.generateWrokspace",
                 "title": "akTool.generateWrokspace"
             }
-        ]
+        ],
+        "configuration": {
+            "title": "akToo: File Size Status Bar",
+            "properties": {
+                "fileSizeStatusBar.alignment": {
+                    "type": "string",
+                    "enum": [
+                        "left",
+                        "right"
+                    ],
+                    "default": "right",
+                    "description": "Position de l'affichage dans la barre de statut (left ou right)"
+                },
+                "fileSizeStatusBar.priority": {
+                    "type": "number",
+                    "default": 100,
+                    "description": "prioriter du statut bar plus elever = plus au extreme"
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
@@ -106,132 +88,10 @@ SOFTWARE.
     "homepage": "https://github.com/Limacha/arflakatool#readme"
 }
 
-///////////////////////////
-// README.md
-///////////////////////////
-
-fait pour avoir plein de fonctionaliter en plus
-
-///////////////////////////
-// tsconfig.json
-///////////////////////////
-
-{
-    "compilerOptions": {
-        "module": "Node16",
-        "target": "ES2022",
-        "outDir": "./out",
-        "rootDir": "./src",
-        "sourceMap": true,
-        "strict": true,
-        "esModuleInterop": true
-    },
-    "exclude": [
-        "node_modules",
-        ".vscode-test"
-    ]
-}
-
-///////////////////////////
-// .vscode
-///////////////////////////
-
-
-
-///////////////////////////
-// .vscode\extensions.json
-///////////////////////////
-
-{
-	// See http://go.microsoft.com/fwlink/?LinkId=827846
-	// for the documentation about the extensions.json format
-	"recommendations": [
-		"dbaeumer.vscode-eslint",
-		"ms-vscode.extension-test-runner"
-	]
-}
-
-
-///////////////////////////
-// .vscode\launch.json
-///////////////////////////
-
-// A launch configuration that compiles the extension and then opens it inside a new window
-// Use IntelliSense to learn about possible attributes.
-// Hover to view descriptions of existing attributes.
-// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-{
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Run Extension",
-			"type": "extensionHost",
-			"request": "launch",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
-			],
-			"outFiles": [
-				"${workspaceFolder}/out/**/*.js"
-			],
-			"preLaunchTask": "${defaultBuildTask}"
-		}
-	]
-}
-
-
-///////////////////////////
-// .vscode\settings.json
-///////////////////////////
-
-// Place your settings in this file to overwrite default and user settings.
-{
-	"files.exclude": {
-		"out": false // set this to true to hide the "out" folder with the compiled JS files
-	},
-	"search.exclude": {
-		"out": true // set this to false to include "out" folder in search results
-	},
-	// Turn off tsc task auto detection since we have the necessary tasks as npm scripts
-	"typescript.tsc.autoDetect": "off"
-}
-
-
-///////////////////////////
-// .vscode\tasks.json
-///////////////////////////
-
-// See https://go.microsoft.com/fwlink/?LinkId=733558
-// for the documentation about the tasks.json format
-{
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "watch",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
-			"presentation": {
-				"reveal": "never"
-			},
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
-		}
-	]
-}
-
-
-///////////////////////////
-// src
-///////////////////////////
-
-
 
 ///////////////////////////
 // src\config.ts
 ///////////////////////////
-
 import path from 'path';
 import * as fs from 'fs';
 import { error } from './log';
@@ -305,223 +165,27 @@ export function getConfigContent(): any {
 //#endregion
 
 ///////////////////////////
-// src\copySaveAndEdit.ts
-///////////////////////////
-
-import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
-import { getRootPath, getConfigPath, getConfigContent } from './config';
-import { validate } from './validation';
-import { exampleMap } from './creatorExampleFile';
-import { log } from './log';
-
-export interface CopyRule {
-    source: string; // nom du fichier à surveiller (ex: "script.js")
-    destination: string; // chemin relatif de destination (ex: "copie/script_copy.js")
-    injection: {
-        text: string; // texte à injecter
-        position: number; // position de l'injection
-    }[];
-}
-
-// export function isCopyRule(obj: any): obj is CopyRule {
-//     return obj &&
-//         typeof obj.source === 'string' &&
-//         typeof obj.destination === 'string' &&
-//         typeof obj.injection === 'string' &&
-//         (obj.position === 'start' || obj.position === 'end');
-// }
-
-/**
- * 
- * @returns le filtre sous format StructureConfig
- */
-async function loadConfig(): Promise<CopyRule[]> {
-
-    //verifie le type des entrees
-    const config: CopyRule[] = validate(getConfigContent()?.CopyRule, exampleMap["CopyRule"]);
-    log(getConfigPath());
-    log(config);
-    return config;
-}
-
-export async function copySaveAndEdit(document: vscode.TextDocument) {
-
-    let rules: CopyRule[] = await loadConfig();
-
-    if (rules === null || rules?.length === 0) {
-        vscode.window.showWarningMessage(`Fichier de config '${getConfigPath()}' invalide.`);
-    }
-
-    const filePath = path.relative(getRootPath(), document.uri.fsPath).replace(/\\/g, '/');
-
-    const matchingRules = rules.filter(rule => rule.source === filePath);
-
-    if (matchingRules.length === 0) return;
-
-    const originalContent = document.getText().split('\n');
-
-    matchingRules.forEach(rule => {
-        var newContent = originalContent.slice();
-
-        //injecte tout les elements
-        rule.injection.forEach(injection => {
-            const position = Math.round(injection.position); //arondit pour pas avoir de float
-            //enfonction de si on part de la fin ou du debut
-            if (position < 0) {
-                //eviter d'ajouter en -5
-                if (newContent.length + 1 + position >= 0) {
-                    newContent.splice(newContent.length + 1 + position, 0, injection.text);
-                }
-                else {
-                    newContent.splice(0, 0, injection.text);
-                }
-            }
-            else if (position > 0) {
-                newContent.splice(position - 1, 0, injection.text);
-            }
-        });
-
-        const destPath = path.join(getRootPath(), rule.destination); //chemin du fichier
-        const destDir = path.dirname(destPath); //chemin du dossier
-
-        // Crée le dossier s'il n'existe pas
-        try {
-            fs.mkdirSync(destDir, { recursive: true });
-        } catch (mkdirErr) {
-            vscode.window.showErrorMessage(`Erreur création du dossier ${destDir} : ${mkdirErr}`);
-            return;
-        }
-
-        //ecrit dans le fichier
-        fs.writeFile(destPath, newContent.join("\n"), err => {
-            if (err) {
-                vscode.window.showErrorMessage(`Erreur écriture ${rule.destination} : ${err.message}`);
-            } else {
-                vscode.window.showInformationMessage(`Copié ${rule.source} → ${rule.destination}`);
-            }
-        });
-    });
-}
-
-///////////////////////////
-// src\creatorExampleFile.ts
-///////////////////////////
-
-import * as vscode from 'vscode';
-import * as fs from 'fs';
-import { log, warn, error } from './log';
-import { getConfigPath } from './config';
-import { StructureConfig } from './structGenerator';
-import { CopyRule } from './copySaveAndEdit';
-
-
-/* #region example */
-const exampleStructureConfig: StructureConfig = {
-    "excludeFolders": [
-        "test42\test",
-        "test42\\test",
-        "test42/test"
-    ],
-    "excludeExtensions": [
-        ".txt"
-    ],
-    "excludeFiles": [
-        "project_structure.txt",
-        "akTool.config.json",
-        "origin/script.js"
-    ],
-    "excludeName": [
-        "*amp*",
-        "exam*",
-        "*m**e*",
-        "example"
-    ],
-    "excludeCode": {
-        "folders": [
-            "example"
-        ],
-        "extensions": [
-            ".js"
-        ],
-        "files": [
-            "example.txt",
-            "package-lock.json"
-        ],
-        "name": [
-            "*amp*",
-            "exam*",
-            "*m**e*",
-            "example"
-        ]
-    }
-};
-
-const exampleCopyRule: CopyRule[] =
-    [
-        {
-            source: 'script.js',
-            destination: 'copie/script_copy.js',
-            injection: [{ text: "//end", position: -1 }, { text: "//start", position: 1 }, { text: "//pas ajouter", position: 0 }, { text: "//ligne 15", position: 15 }, { text: "//ligne 5 depuis la fin", position: -5 }]
-        }
-    ];
-
-export const exampleMap: Record<string, any> = {
-    StructureConfig: exampleStructureConfig,
-    CopyRule: exampleCopyRule,
-    // ajouter d'autres exemples ici si besoin
-};
-/* #endregion */
-
-export async function createExampleFile(types: string[]) {
-    log(types);
-    // Objet final, une seule entrée par type (nom de type => objet)
-    const example: Record<string, any> = {};
-
-    types.forEach((typeName) => {
-        //si le type a un example
-        if (exampleMap[typeName]) {
-            //ajoute l'example
-            example[typeName] = exampleMap[typeName];
-        } else {
-            warn(`Aucun exemple trouvé pour le type "${typeName}"`);
-        }
-    });
-
-
-    try {
-        const path = getConfigPath();
-        log(example);
-        fs.writeFileSync(path, JSON.stringify(example, null, 2), 'utf-8');
-        vscode.window.showInformationMessage(`Fichier ${path} créé.`);
-
-        //ouvre le document
-        const doc = await vscode.workspace.openTextDocument(path);
-        vscode.window.showTextDocument(doc);
-
-    } catch (e: any) {
-        vscode.window.showErrorMessage("Erreur écriture du fichier : " + e.message);
-    }
-}
-
-///////////////////////////
 // src\extension.ts
 ///////////////////////////
-
 import * as vscode from 'vscode';
-import { generateStructure } from './structGenerator';
-import { exampleMap, createExampleFile } from './creatorExampleFile';
+import { generateStructure } from './tools/structGenerator';
+import { exampleMap, createExampleFile } from './tools/creatorExampleFile';
 import { outputChannel, logChannel, log } from './log';
-import { getRootPath, setRootPath } from './config';
-import { copySaveAndEdit } from './copySaveAndEdit';
-import { generateWorkspaceFromStructure } from './generateWorkspace';
+import { getConfigContent, getConfigPath, getRootPath, setRootPath } from './config';
+import { copySaveAndEdit } from './tools/copySaveAndEdit';
+import { generateWorkspaceFromStructure } from './tools/generateWorkspace';
 import { pathExists } from './function';
+import { fileSizeStatusBar, updateFileSize, updateFileSizeStatutBar } from './tools/fileSize';
+import { report } from './report';
 
 export function activate(context: vscode.ExtensionContext) {
     verifWorkspace();
     logChannel("Extension akTool activée!");
     log("Extension akTool activée!");
+    if (vscode.window.activeTextEditor?.document) {
+        updateFileSize(vscode.window.activeTextEditor.document);
+    }
+    context.subscriptions.push(fileSizeStatusBar);
 
     const generateStruct = vscode.commands.registerCommand('akTool.createstruct', async () => {
         log('akTool.createstruct');
@@ -539,7 +203,6 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
         if (!option) return;
-
         generateStructure(option);
     });
     context.subscriptions.push(generateStruct);
@@ -619,13 +282,30 @@ export function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(createJsonFile);
 
+    // permet au utilisateur de report
+    const reportCommand = vscode.commands.registerCommand('akTool.report', async () => {
+        log('akTool.report');
+
+        const level = await vscode.window.showQuickPick(["suggestion", "bug critique", "bug", "faille de securiter", "questions"], {
+            placeHolder: 'Quel est le probleme'
+        });
+
+        const title = await vscode.window.showInputBox({ placeHolder: "le titre du mail" });
+
+        report();
+    });
+    context.subscriptions.push(reportCommand);
+
     vscode.workspace.onDidSaveTextDocument(document => {
         log('onDidSaveTextDocument', document);
+
+        updateFileSize(document);
+
         if (!verifWorkspace()) {
             vscode.window.showErrorMessage("Aucun dossier ouvert.");
             return;
         }
-        copySaveAndEdit(document);
+        if (getConfigContent()?.CopyRule) copySaveAndEdit(document);
     });
 
     vscode.workspace.onDidChangeWorkspaceFolders(event => {
@@ -640,6 +320,23 @@ export function activate(context: vscode.ExtensionContext) {
 
         verifWorkspace();
     });
+
+    vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (editor) {
+            updateFileSize(editor.document);
+        }
+    }, null, context.subscriptions);
+
+    vscode.workspace.onDidChangeConfiguration(event => {
+        log('onDidChangeConfiguration', event);
+        if (event.affectsConfiguration('fileSizeStatusBar.alignment') || event.affectsConfiguration('fileSizeStatusBar.priority')) {
+            fileSizeStatusBar.dispose();
+            updateFileSizeStatutBar();
+            if (vscode.window.activeTextEditor?.document) {
+                updateFileSize(vscode.window.activeTextEditor.document);
+            }
+        }
+    }, null, context.subscriptions);
 }
 
 export function deactivate() {
@@ -666,7 +363,6 @@ function verifWorkspace(): boolean {
 ///////////////////////////
 // src\function.ts
 ///////////////////////////
-
 import * as fs from 'fs';
 import * as fsPromise from 'fs/promises';
 import * as path from 'path';
@@ -783,6 +479,11 @@ export async function createFile(filePath: string, content: string = ''): Promis
     await fsPromise.writeFile(resolvedPath, content, { encoding: 'utf-8' });
 }
 
+/**
+ * vide compltement un dossier
+ * @param dirPath le chemin vers le dossier a vider
+ * @returns la promesse de le vider
+ */
 export async function clearDirectory(dirPath: string): Promise<void> {
     try {
         const resolvedPath = path.resolve(dirPath);
@@ -813,22 +514,460 @@ export async function clearDirectory(dirPath: string): Promise<void> {
     }
 }
 
-
+/**
+ * cree un chemin complet a partir du workspace[0] ou c:\\
+ * @param filePath le chemin relatif
+ * @returns le chemin complet
+ */
 export function createFullPath(filePath: string) {
     if (!path.isAbsolute(filePath)) filePath = (getRootPath() != "") ? path.join(getRootPath(), filePath) : "c:\\" + filePath;
     return filePath;
 }
 
-///////////////////////////
-// src\generateWorkspace.ts
-///////////////////////////
+/**
+ * formate le nombre de byte pour avoir la valeur en B/KB/MB
+ * @param bytes le nombre de byte
+ * @returns le nombre de bytes formater (B/KB/MB)
+ */
+export function formatBytes(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    const kb = bytes / 1024;
+    if (kb < 1024) return `${kb.toFixed(1)} KB`;
+    const mb = kb / 1024;
+    return `${mb.toFixed(2)} MB`;
+};
 
+///////////////////////////
+// src\log.ts
+///////////////////////////
+import * as vscode from 'vscode';
+
+const prefix = "--akTool--> "
+
+export const outputChannel = vscode.window.createOutputChannel("akTool");
+
+export function logChannel(...messages: string[]) {
+    for (const msg of messages) {
+        outputChannel.append(prefix);
+        outputChannel.appendLine(msg);
+    }
+    outputChannel.show(true);
+}
+
+export function log(...messages: any[]) {
+    for (const msg of messages) {
+        console.log(prefix, msg);
+    }
+}
+
+export function warn(...messages: any[]) {
+    for (const msg of messages) {
+        console.warn(prefix, msg);
+    }
+}
+
+export function error(...messages: any[]) {
+    for (const msg of messages) {
+        console.error(prefix, msg);
+    }
+}
+
+
+///////////////////////////
+// src\report.ts
+///////////////////////////
+export function report() {
+
+}
+
+///////////////////////////
+// src\validation.ts
+///////////////////////////
+import { log } from './log';
+type SchemaType =
+    | 'string'
+    | 'number'
+    | 'boolean'
+    | 'undefined'
+    | [SchemaType]
+    | [Schema];
+
+type Schema = {
+    [key: string]: SchemaType | Schema; // supporte objets imbriqués ou tableaux d'objets
+};
+
+
+/**
+ * detect le type de l'object et renvoie son equivalent dans un schema
+ * @param value la valeur de la quel on veut obtenir le type
+ * @returns un type ou un schema de la valeur
+ */
+function detectType(value: any): SchemaType | Schema {
+    if (typeof value === 'string') return 'string'; //si un string
+    if (typeof value === 'number') return 'number'; //si un nombre
+    if (typeof value === 'boolean') return 'boolean'; //si un bool
+
+    //si un tableau
+    if (Array.isArray(value)) {
+        const first = value[0];
+        //si valeur presente verifie sont type
+        if (first !== undefined && first !== null) {
+            //si tableau d'object refait un schema de l'object
+            if (typeof first === 'object' && !Array.isArray(first)) {
+                return [detectType(first) as Schema];
+            }
+            else {
+                //obtien de le type de l'elment
+                return [detectType(first) as SchemaType];
+            }
+        }
+        else {
+            //pas defini
+            return ['undefined'];
+        }
+
+    }
+
+    //si s'est un object et pas null
+    if (typeof value === 'object' && value !== null) {
+        //fait un schema avec tout les type detecter
+        const schema: Schema = {};
+        Object.keys(value).forEach(key => {
+            schema[key] = detectType(value[key]);
+        })
+        return schema;
+    }
+
+    return 'undefined'; // fallback
+}
+
+/**
+ * fait un schema d'un object fournit
+ * @param sample object a schematiser
+ * @returns le schema creez
+ */
+function generateSchemaFromSample(sample: any): SchemaType | Schema {
+    //si pas un object
+    if (typeof sample !== 'object' || sample === null || Array.isArray(sample)) {
+        return detectType(sample);
+    }
+
+    //si un object
+    const schema: Schema = {};
+    for (const key in sample) {
+        //regarde le type pour chaque valeur du sample
+        schema[key] = detectType(sample[key]);
+    }
+    return schema;
+}
+
+
+function validateValue(value: any, typeDesc: SchemaType | Schema): any {
+    // log("----------", "type", typeDesc);
+    // log("val", value, "----------");
+    //si s'est un seul element
+    if (typeof typeDesc === 'string') {
+        switch (typeDesc) {
+            case 'string': return typeof value === 'string' ? value : null;
+            case 'number': return typeof value === 'number' ? value : null;
+            case 'boolean': return typeof value === 'boolean' ? value : null;
+            case 'undefined': return value;
+            default: return null;
+        }
+    }
+    //si s'est un array
+    else if (Array.isArray(typeDesc)) {
+        if (Array.isArray(value)) {
+            const itemSchema = typeDesc[0];
+            var result: any[] = [];
+
+            value.forEach(element => {
+                result.push(validateValue(element, itemSchema));
+            });
+            return result;
+        }
+
+    }
+    //si s'est un object
+    else if (typeof typeDesc === 'object') {
+        const result: any = {};
+        for (const key in typeDesc) {
+            result[key] = validateValue(value?.[key], typeDesc[key]);
+        }
+        return result;
+    }
+
+    return null;
+}
+
+/**
+ * prend des valeurs brut fournit et un patern avec l'object a obtenir au niveau des type et cree un object avec les valeurs valide
+ * @param raw object brut
+ * @param patern l'object schema
+ * @returns renvoie un object contenant les valeurs de brut correct selon le patern
+ */
+export function validate<T>(raw: any, patern: any): T {
+    //genere un schema
+    const schema = generateSchemaFromSample(patern);
+    // log(schema);
+    //renvoie l'object avec les bonne valeur
+    return validateValue(raw, schema) as T;
+}
+
+///////////////////////////
+// src\tools\copySaveAndEdit.ts
+///////////////////////////
+import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { getRootPath, getConfigPath, getConfigContent } from '../config';
+import { validate } from '../validation';
+import { log } from '../log';
+import { exampleMap } from './creatorExampleFile';
+
+export interface CopyRule {
+    source: string; // nom du fichier à surveiller (ex: "script.js")
+    destination: string; // chemin relatif de destination (ex: "copie/script_copy.js")
+    injection: {
+        text: string; // texte à injecter
+        position: number; // position de l'injection
+    }[];
+}
+
+// export function isCopyRule(obj: any): obj is CopyRule {
+//     return obj &&
+//         typeof obj.source === 'string' &&
+//         typeof obj.destination === 'string' &&
+//         typeof obj.injection === 'string' &&
+//         (obj.position === 'start' || obj.position === 'end');
+// }
+
+/**
+ * 
+ * @returns le filtre sous format StructureConfig
+ */
+async function loadConfig(): Promise<CopyRule[]> {
+
+    //verifie le type des entrees
+    const config: CopyRule[] = validate(getConfigContent()?.CopyRule, exampleMap["CopyRule"]);
+    log(getConfigPath());
+    log(config);
+    return config;
+}
+
+export async function copySaveAndEdit(document: vscode.TextDocument) {
+
+    let rules: CopyRule[] = await loadConfig();
+
+    if (rules === null || rules?.length === 0) {
+        vscode.window.showWarningMessage(`Fichier de config '${getConfigPath()}' invalide.`);
+    }
+
+    const filePath = path.relative(getRootPath(), document.uri.fsPath).replace(/\\/g, '/');
+
+    const matchingRules = rules.filter(rule => rule.source === filePath);
+
+    if (matchingRules.length === 0) return;
+
+    const originalContent = document.getText().split('\n');
+
+    matchingRules.forEach(rule => {
+        var newContent = originalContent.slice();
+
+        //injecte tout les elements
+        rule.injection.forEach(injection => {
+            const position = Math.round(injection.position); //arondit pour pas avoir de float
+            //enfonction de si on part de la fin ou du debut
+            if (position < 0) {
+                //eviter d'ajouter en -5
+                if (newContent.length + 1 + position >= 0) {
+                    newContent.splice(newContent.length + 1 + position, 0, injection.text);
+                }
+                else {
+                    newContent.splice(0, 0, injection.text);
+                }
+            }
+            else if (position > 0) {
+                newContent.splice(position - 1, 0, injection.text);
+            }
+        });
+
+        const destPath = path.join(getRootPath(), rule.destination); //chemin du fichier
+        const destDir = path.dirname(destPath); //chemin du dossier
+
+        // Crée le dossier s'il n'existe pas
+        try {
+            fs.mkdirSync(destDir, { recursive: true });
+        } catch (mkdirErr) {
+            vscode.window.showErrorMessage(`Erreur création du dossier ${destDir} : ${mkdirErr}`);
+            return;
+        }
+
+        //ecrit dans le fichier
+        fs.writeFile(destPath, newContent.join("\n"), err => {
+            if (err) {
+                vscode.window.showErrorMessage(`Erreur écriture ${rule.destination} : ${err.message}`);
+            } else {
+                vscode.window.showInformationMessage(`Copié ${rule.source} → ${rule.destination}`);
+            }
+        });
+    });
+}
+
+///////////////////////////
+// src\tools\creatorExampleFile.ts
+///////////////////////////
 import * as vscode from 'vscode';
-import { logChannel, log, warn, error } from './log';
-import { getRootPath } from './config';
-import { clearDirectory, createDir, createFile, escapeSpecialChars, pathExists, readFileContent, standarPath, createFullPath } from './function';
+import * as fs from 'fs';
+import { log, warn, error } from '../log';
+import { getConfigContent, getConfigPath } from '../config';
+import { StructureConfig } from './structGenerator';
+import { CopyRule } from './copySaveAndEdit';
+
+
+/* #region example */
+const exampleStructureConfig: StructureConfig = {
+    "excludeFolders": [
+        "test42\test",
+        "test42\\test",
+        "test42/test"
+    ],
+    "excludeExtensions": [
+        ".txt"
+    ],
+    "excludeFiles": [
+        "project_structure.txt",
+        "akTool.config.json",
+        "origin/script.js"
+    ],
+    "excludeName": [
+        "*amp*",
+        "exam*",
+        "*m**e*",
+        "example"
+    ],
+    "excludeCode": {
+        "folders": [
+            "example"
+        ],
+        "extensions": [
+            ".js"
+        ],
+        "files": [
+            "example.txt",
+            "package-lock.json"
+        ],
+        "name": [
+            "*amp*",
+            "exam*",
+            "*m**e*",
+            "example"
+        ]
+    }
+};
+
+const exampleCopyRule: CopyRule[] =
+    [
+        {
+            source: 'script.js',
+            destination: 'copie/script_copy.js',
+            injection: [{ text: "//end", position: -1 }, { text: "//start", position: 1 }, { text: "//pas ajouter", position: 0 }, { text: "//ligne 15", position: 15 }, { text: "//ligne 5 depuis la fin", position: -5 }]
+        }
+    ];
+
+export const exampleMap: Record<string, any> = {
+    StructureConfig: exampleStructureConfig,
+    CopyRule: exampleCopyRule,
+    // ajouter d'autres exemples ici si besoin
+};
+/* #endregion */
+
+export async function createExampleFile(types: string[]) {
+    log(types);
+    // Objet final, une seule entrée par type (nom de type => objet)
+    const example: Record<string, any> = {};
+    let config = getConfigContent();
+    log(config);
+
+    types.forEach((typeName) => {
+        //si le type a un example
+        if (exampleMap[typeName]) {
+            //ajoute l'example
+            config[typeName] = exampleMap[typeName];
+        } else {
+            warn(`Aucun exemple trouvé pour le type "${typeName}"`);
+        }
+    });
+
+
+    try {
+        const path = getConfigPath();
+        log(config);
+        fs.writeFileSync(path, JSON.stringify(config, null, 2), 'utf-8');
+        vscode.window.showInformationMessage(`Fichier ${path} créé.`);
+
+        //ouvre le document
+        const doc = await vscode.workspace.openTextDocument(path);
+        vscode.window.showTextDocument(doc);
+
+    } catch (e: any) {
+        vscode.window.showErrorMessage("Erreur écriture du fichier : " + e.message);
+    }
+}
+
+///////////////////////////
+// src\tools\fileSize.ts
+///////////////////////////
+import * as vscode from 'vscode';
+import * as fs from 'fs';
+import { formatBytes } from '../function';
+
+export let fileSizeStatusBar: vscode.StatusBarItem = createFileSizeStatusBar();
+
+function createFileSizeStatusBar(): vscode.StatusBarItem {
+    const config = vscode.workspace.getConfiguration();
+    const position = config.get<'left' | 'right'>('fileSizeStatusBar.alignment', 'right');
+    const priority = config.get<number>('fileSizeStatusBar.priority', 100);
+
+    const alignment = position === 'left'
+        ? vscode.StatusBarAlignment.Left
+        : vscode.StatusBarAlignment.Right;
+
+    const item = vscode.window.createStatusBarItem(alignment, priority);
+    item.show();
+    return item;
+}
+
+export function updateFileSizeStatutBar() {
+    fileSizeStatusBar = createFileSizeStatusBar();
+}
+
+
+export function updateFileSize(document: vscode.TextDocument) {
+    const filePath = document.uri.fsPath;
+
+    fs.stat(filePath, (err, stats) => {
+        if (err) {
+            fileSizeStatusBar.hide();
+            return;
+        }
+
+        const sizeInBytes = stats.size;
+        const sizeText = formatBytes(sizeInBytes);
+        fileSizeStatusBar.text = `${sizeText}`; //$(file) logo de fichier
+        fileSizeStatusBar.show();
+    });
+}
+
+///////////////////////////
+// src\tools\generateWorkspace.ts
+///////////////////////////
+import * as fs from 'fs';
+import { relative } from 'path';
+import * as vscode from 'vscode';
+import { logChannel, log, warn, error } from '../log';
+import { getRootPath } from '../config';
+import { clearDirectory, createDir, createFile, escapeSpecialChars, pathExists, readFileContent, standarPath, createFullPath } from '../function';
 
 export async function generateWorkspaceFromStructure(from: string, to: string, structure: boolean, code: boolean, fromCode: string = "") {
     let struct: string[] = [];
@@ -864,9 +1003,9 @@ export async function generateWorkspaceFromStructure(from: string, to: string, s
         const content: string[] = readFileContent((fromCode != "") ? fromCode : from).split("///////////////////////////\n");
         for (let index = 1; index < content.length - 1; index += 2) {
             //log(`i=${index} m=${content.length + 1}`);
-            files.set(content[index].slice(3), content[index + 1]);
+            files.set(content[index].slice(3, -1), content[index + 1]);
         }
-        log("files", files);
+        log(files);
         allTask += files.size;
     }
     //log(allTask);
@@ -962,7 +1101,15 @@ export async function generateWorkspaceFromStructure(from: string, to: string, s
                                 notice = false;
                             }
                         }
-                        await createFile(path);
+                        let content: string | undefined = "";
+                        if (code) {
+                            const relativePath = relative(to, path);
+                            log(relativePath, files.has(relativePath));
+                            if (files.has(relativePath)) {
+                                content = files.get(relativePath);
+                            }
+                        }
+                        await createFile(path, content);
                     }
                     taskDone++;
                     report(taskDone / allTask * 100, "V " + path);
@@ -981,54 +1128,16 @@ export async function generateWorkspaceFromStructure(from: string, to: string, s
 }
 
 ///////////////////////////
-// src\log.ts
+// src\tools\structGenerator.ts
 ///////////////////////////
-
-import * as vscode from 'vscode';
-
-const prefix = "--akTool--> "
-
-export const outputChannel = vscode.window.createOutputChannel("akTool");
-
-export function logChannel(...messages: string[]) {
-    for (const msg of messages) {
-        outputChannel.append(prefix);
-        outputChannel.appendLine(msg);
-    }
-    outputChannel.show(true);
-}
-
-export function log(...messages: any[]) {
-    for (const msg of messages) {
-        console.log(prefix, msg);
-    }
-}
-
-export function warn(...messages: any[]) {
-    for (const msg of messages) {
-        console.warn(prefix, msg);
-    }
-}
-
-export function error(...messages: any[]) {
-    for (const msg of messages) {
-        console.error(prefix, msg);
-    }
-}
-
-
-///////////////////////////
-// src\structGenerator.ts
-///////////////////////////
-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { logChannel, log } from './log';
-import { getConfigContent, getConfigPath, getRootPath } from './config'
-import { validate } from './validation';
+import { logChannel, log } from '../log';
+import { getConfigContent, getConfigPath, getRootPath } from '../config'
+import { validate } from '../validation';
 import { exampleMap } from './creatorExampleFile';
-import { escapeSpecialChars, isDir, standarPath } from './function';
+import { escapeSpecialChars, isDir, standarPath } from '../function';
 
 /**
  * type du fichier config
@@ -1386,139 +1495,4 @@ export async function generateStructure(mode: string) {
     }
 
     vscode.window.showInformationMessage("Structure du projet générée !");
-}
-
-///////////////////////////
-// src\validation.ts
-///////////////////////////
-
-import { log } from './log';
-type SchemaType =
-    | 'string'
-    | 'number'
-    | 'boolean'
-    | 'undefined'
-    | [SchemaType]
-    | [Schema];
-
-type Schema = {
-    [key: string]: SchemaType | Schema; // supporte objets imbriqués ou tableaux d'objets
-};
-
-
-/**
- * detect le type de l'object et renvoie son equivalent dans un schema
- * @param value la valeur de la quel on veut obtenir le type
- * @returns un type ou un schema de la valeur
- */
-function detectType(value: any): SchemaType | Schema {
-    if (typeof value === 'string') return 'string'; //si un string
-    if (typeof value === 'number') return 'number'; //si un nombre
-    if (typeof value === 'boolean') return 'boolean'; //si un bool
-
-    //si un tableau
-    if (Array.isArray(value)) {
-        const first = value[0];
-        //si valeur presente verifie sont type
-        if (first !== undefined && first !== null) {
-            //si tableau d'object refait un schema de l'object
-            if (typeof first === 'object' && !Array.isArray(first)) {
-                return [detectType(first) as Schema];
-            }
-            else {
-                //obtien de le type de l'elment
-                return [detectType(first) as SchemaType];
-            }
-        }
-        else {
-            //pas defini
-            return ['undefined'];
-        }
-
-    }
-
-    //si s'est un object et pas null
-    if (typeof value === 'object' && value !== null) {
-        //fait un schema avec tout les type detecter
-        const schema: Schema = {};
-        Object.keys(value).forEach(key => {
-            schema[key] = detectType(value[key]);
-        })
-        return schema;
-    }
-
-    return 'undefined'; // fallback
-}
-
-/**
- * fait un schema d'un object fournit
- * @param sample object a schematiser
- * @returns le schema creez
- */
-function generateSchemaFromSample(sample: any): SchemaType | Schema {
-    //si pas un object
-    if (typeof sample !== 'object' || sample === null || Array.isArray(sample)) {
-        return detectType(sample);
-    }
-
-    //si un object
-    const schema: Schema = {};
-    for (const key in sample) {
-        //regarde le type pour chaque valeur du sample
-        schema[key] = detectType(sample[key]);
-    }
-    return schema;
-}
-
-
-function validateValue(value: any, typeDesc: SchemaType | Schema): any {
-    // log("----------", "type", typeDesc);
-    // log("val", value, "----------");
-    //si s'est un seul element
-    if (typeof typeDesc === 'string') {
-        switch (typeDesc) {
-            case 'string': return typeof value === 'string' ? value : null;
-            case 'number': return typeof value === 'number' ? value : null;
-            case 'boolean': return typeof value === 'boolean' ? value : null;
-            case 'undefined': return value;
-            default: return null;
-        }
-    }
-    //si s'est un array
-    else if (Array.isArray(typeDesc)) {
-        if (Array.isArray(value)) {
-            const itemSchema = typeDesc[0];
-            var result: any[] = [];
-
-            value.forEach(element => {
-                result.push(validateValue(element, itemSchema));
-            });
-            return result;
-        }
-
-    }
-    //si s'est un object
-    else if (typeof typeDesc === 'object') {
-        const result: any = {};
-        for (const key in typeDesc) {
-            result[key] = validateValue(value?.[key], typeDesc[key]);
-        }
-        return result;
-    }
-
-    return null;
-}
-
-/**
- * prend des valeurs brut fournit et un patern avec l'object a obtenir au niveau des type et cree un object avec les valeurs valide
- * @param raw object brut
- * @param patern l'object schema
- * @returns renvoie un object contenant les valeurs de brut correct selon le patern
- */
-export function validate<T>(raw: any, patern: any): T {
-    //genere un schema
-    const schema = generateSchemaFromSample(patern);
-    // log(schema);
-    //renvoie l'object avec les bonne valeur
-    return validateValue(raw, schema) as T;
 }
