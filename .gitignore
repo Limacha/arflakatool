@@ -5,3 +5,4 @@ node_modules
 *.vsix
 project_code.txt
 project_structure.txt
+package-lock.json
