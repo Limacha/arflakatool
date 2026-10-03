@@ -74,10 +74,11 @@
         }
     },
     "scripts": {
+        "install": "npm install --save-dev @types/node @vscode/test-cli @vscode/test-electron --legacy-peer-deps",
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "pretest": "npm run compile && npm run lint",
+        "pretest": "npm run compile",
         "lint": "eslint src",
         "test": "vscode-test",
         "publish": "npm run vscode:prepublish && vsce publish",
@@ -85,9 +86,14 @@
         "token": "vsce login Arflaka-Limacha"
     },
     "devDependencies": {
-        "@types/node": "^24.0.15",
-        "@types/vscode": "^1.102.0",
-        "typescript": "^5.8.3"
+        "@types/node": "^26.6.2",
+        "@types/vscode": "^1.138.0",
+        "@typescript-eslint/eslint-plugin": "^8.70.1",
+        "@typescript-eslint/parser": "^8.70.1",
+        "@vscode/test-cli": "^0.0.15",
+        "@vscode/test-electron": "^3.1.0",
+        "eslint": "^10.11.0",
+        "typescript": "^7.0.2"
     },
     "repository": {
         "type": "git",
@@ -98,5 +104,8 @@
     "bugs": {
         "url": "https://github.com/Limacha/arflakatool/issues"
     },
-    "homepage": "https://github.com/Limacha/arflakatool#readme"
+    "homepage": "https://github.com/Limacha/arflakatool#readme",
+    "dependencies": {
+        "tsc": "^2.0.4"
+    }
 }

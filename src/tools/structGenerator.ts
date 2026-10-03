@@ -218,7 +218,7 @@ function isExcludFromCode(fullPath: string, rootPath: string, config: StructureC
     //si des dossier son exclu
     if (config.excludeCode?.folders) {
         //! car sur pas null
-        if (dirParts.some(folder => config.excludeFolders!.includes(folder))) {
+        if (dirParts.some((folder: string) => config.excludeFolders!.includes(folder))) {
             return true;
         }
     }

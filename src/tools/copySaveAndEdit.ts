@@ -85,7 +85,7 @@ export async function copySaveAndEdit(document: vscode.TextDocument) {
         }
 
         //ecrit dans le fichier
-        fs.writeFile(destPath, newContent.join("\n"), err => {
+        fs.writeFile(destPath, newContent.join("\n"), (err: any) => {
             if (err) {
                 vscode.window.showErrorMessage(`Erreur écriture ${rule.destination} : ${err.message}`);
             } else {

@@ -6,7 +6,10 @@
         "rootDir": "./src",
         "sourceMap": true,
         "strict": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "types": [
+            "node"
+        ]
     },
     "exclude": [
         "node_modules",

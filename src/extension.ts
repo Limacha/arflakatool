@@ -13,8 +13,8 @@ import { HexEditorProvider } from "./provider/hexEditorProvider";
 
 export function activate(context: vscode.ExtensionContext) {
     verifWorkspace();
-    logChannel("Extension akTool activée!");
-    log("Extension akTool activée!");
+    logChannel("AkTool enable");
+    log("Aktool enable");
     if (vscode.window.activeTextEditor?.document) {
         updateFileSize(vscode.window.activeTextEditor.document);
     }

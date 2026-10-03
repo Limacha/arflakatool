@@ -47,7 +47,7 @@ export async function getHtml(panel: vscode.WebviewPanel, context: vscode.Extens
     const styleUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(hewEditPath, 'hexEditor.css'));
 
     const bytes = Buffer.from(base64, 'base64'); // revient au buffer d'origine
-    const hexArray = Array.from(bytes, (byte) =>
+    const hexArray = Array.from(bytes, (byte: Number) =>
         byte.toString(16).padStart(2, '0')
     );
 

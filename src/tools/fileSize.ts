@@ -26,7 +26,7 @@ export function updateFileSizeStatutBar() {
 export function updateFileSize(document: vscode.TextDocument) {
     const filePath = document.uri.fsPath;
 
-    fs.stat(filePath, (err, stats) => {
+    fs.stat(filePath, (err: any, stats: any) => {
         if (err) {
             fileSizeStatusBar.hide();
             return;
